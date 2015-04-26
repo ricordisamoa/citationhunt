@@ -6,6 +6,7 @@ from utils import *
 
 import wikitools
 import mwparserfromhell
+import subprocess
 
 import re
 import sys
@@ -20,11 +21,15 @@ MARKER = '7b94863f3091b449e6ab04d44cb372a0' # unlikely to be in any article
 
 TEST_WIKITEXT_CACHE_FILENAME = '.test-wikitext.cache'
 
+def is_citation_needed(t):
+    return t.name.matches('Citation needed') or t.name.matches('cn')
+
 # Monkey-patch mwparserfromhell so it strips some templates and tags the way
 # we want.
 def template_strip(self, normalize, collapse):
-    if self.name.matches('convert'):
-        return ' '.join(map(unicode, self.params[:2]))
+    if not is_citation_needed(self):
+        return self
+    return ''
 mwparserfromhell.nodes.Template.__strip__ = template_strip
 
 def tag_strip(self, normalize, collapse):
@@ -43,9 +48,6 @@ def wikilink_strip(self, normalize, collapse):
 mwparserfromhell.nodes.Wikilink._original_strip = \
     mwparserfromhell.nodes.Wikilink.__strip__
 mwparserfromhell.nodes.Wikilink.__strip__ = wikilink_strip
-
-def is_citation_needed(t):
-    return t.name.matches('Citation needed') or t.name.matches('cn')
 
 def extract_snippets(wikitext, minlen = 140, maxlen = 420, is_lead = False):
     snippets = [] # [section, [snippets]]
@@ -76,7 +78,21 @@ def extract_snippets(wikitext, minlen = 140, maxlen = 420, is_lead = False):
                     # template was
                     wikicode.insert_before(t, MARKER)
 
-            snippet = re.sub(strip_regexp, MARKER, wikicode.strip_code())
+            cmd = [
+                'python', 'smc/mw/tool.py', '-p', '-T',
+                '/Users/Guiherme/code/ch-venv/citationhunt/scripts/templates/'
+            ]
+            env = {'PYTHONPATH': '.'}
+            cwd = '/Users/Guiherme/src/smc.mw/'
+
+            proc = subprocess.Popen(cmd, stdin = subprocess.PIPE, stdout = subprocess.PIPE, cwd = cwd, env = env)
+            stdout, stderr = proc.communicate(e(wikicode.strip_code()))
+            if proc.returncode == 0 and stdout:
+                snippet = d(stdout)
+            else:
+                snippet = wikicode.strip_code()
+
+            snippet = re.sub(strip_regexp, MARKER, snippet)
             if MARKER in snippet: # MARKER may have been inside wiki markup
                 secsnippets.append(snippet)
     return snippets

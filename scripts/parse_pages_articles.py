@@ -40,6 +40,7 @@ WIKIPEDIA_BASE_URL = 'https://en.wikipedia.org'
 WIKIPEDIA_WIKI_URL = WIKIPEDIA_BASE_URL + '/wiki/'
 
 NAMESPACE_ARTICLE = '0'
+NAMESPACE_TEMPLATE = '10'
 
 log = Logger()
 
@@ -133,6 +134,22 @@ def handle_article(wp, element, pageids, stats):
     wp.post(('article', (id, title, text)))
     return
 
+def handle_template(wp, element):
+    title = d(element.find('title').text)
+    text = element.find('revision/text').text
+    if text is None:
+        return
+    text = d(text)
+
+    import os.path as op
+    assert title.startswith('Template:')
+    title = title[len('Template:'):]
+    try:
+        with open(op.join('templates', title), 'w') as tf:
+            tf.write(e(text))
+    except:
+        pass
+
 def parse_xml_dump(pages_articles_xml_bz2, pageids):
     count = 0
     stats = {'redirect': [], 'empty': [], 'pageids': None}
@@ -147,6 +164,8 @@ def parse_xml_dump(pages_articles_xml_bz2, pageids):
             ns = element.find('ns').text
             if ns == NAMESPACE_ARTICLE:
                 handle_article(wp, element, pageids, stats)
+            #elif ns == NAMESPACE_TEMPLATE:
+            #   handle_template(wp, element)
             count += 1
             if count % 10 == 0:
                 log.progress('processed about %d pages' % count)
