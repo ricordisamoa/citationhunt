@@ -117,8 +117,21 @@ button:focus {
     min-width: 140px;
 }
 
-#button-wikilink {
+#button-wikilink, #button-done {
     background-color: #65EAAD;
+}
+
+#button-done {
+    transition: background-color;
+    transition-delay: 20ms;
+    transition-duration: 200ms;
+    -webkit-transition: background-color;
+    -webkit-transition-delay: 20ms;
+    -webkit-transition-duration: 200ms;
+}
+
+#button-done.button-done-pulsate {
+    background-color: #45FFA9;
 }
 
 #button-next {

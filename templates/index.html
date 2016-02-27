@@ -23,6 +23,7 @@
     {% endfor %}
     <blockquote id="snippet"><div id="quotation">"</div>{{ snippet_html[-1] }}</blockquote>
     <div id="buttons">
+      {% if config.strings.button_done %}<button form="form-next" type="submit" id="button-done" class="button" hidden>{{ config.strings.button_done }}</button>{% endif %}
       <a href={{ article_url }}{% if section %}#{{ section }}{% endif %} target=_blank><button class="button" id="button-wikilink">{{ config.strings.button_wikilink }}</button></a>
       <button form="form-next" type="submit" id="button-next" class="button">{{ config.strings.button_next }}</button>
     </div>
@@ -49,5 +50,35 @@
       {% endfor %}
     </div>
     {% block bottom_extras %}{% endblock %}
+    {% if config.strings.button_done %}
+    <script type="text/javascript">
+      function once(element, event, listener) {
+        function _handler() {
+          listener.apply(this, arguments);
+          element.removeEventListener(event, _handler);
+        }
+        element.addEventListener(event, _handler);
+      }
+
+      var button_wikilink = document.getElementById("button-wikilink");
+      var button_done = document.getElementById("button-done");
+
+      button_wikilink.addEventListener("click", function() {
+        once(document, "visibilitychange", function() {
+          button_wikilink.hidden = true;
+          button_done.hidden = false;
+          once(document, "visibilitychange", function() {
+            button_done.classList.add("button-done-pulsate");
+          });
+        });
+        once(button_done, "transitionend", function(e) {
+          button_done.classList.remove("button-done-pulsate");
+        });
+        once(button_done, "webkitTransitionEnd", function(e) {
+          button_done.classList.remove("button-done-pulsate");
+        });
+      });
+    </script>
+    {% endif %}
   </body>
 </html>
