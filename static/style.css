@@ -166,9 +166,14 @@ html[dir="rtl"] #lead-hint {
     float: left;
 }
 
+.bottom-message {
+    margin-top: 50px;
+    text-align: center;
+}
+
 #lang-links {
     text-align: center;
-    margin-top: 30px;
+    margin-top: 20px;
 }
 
 #lang-links a {

@@ -1,10 +1,32 @@
 import chdb
 import config
+import random
 from common import *
 
 from snippet_parser import CITATION_NEEDED_MARKER, REF_MARKER
 
 import collections
+
+IWD_SUGGESTED_CATEGORIES = [
+    ('c800b388', 'Women poets'),
+    ('bbeeaae7', 'Comics about women'),
+    ('9ed842dd', 'Women in technology'),
+    ('7284f5fa', 'Women in World War II'),
+    ('47ab07cf', 'Women television directors'),
+    ('446c8a89', 'Transgender and transexual women'),
+    ('1b4c5591', 'Women novelists'),
+    ('14fb4c05', 'Women essayists'),
+    ('0a986d4f', 'Women in history'),
+    ('929411ba', 'Women of the Victorian era'),
+    ('3980c7bb', "American women's soccer players"),
+    ('b184dd73', 'Women inventors'),
+    ('4eacf4b6', 'All-female bands'),
+    ('a0901c59', 'Female comics artists'),
+    ('ae9de4b5', 'Female bass guitarrists'),
+    ('cf308b09', 'Female heads of government'),
+    ('ebbb21d5', 'Female diplomats'),
+    ('f7ade8c2', 'Female characters in comics'),
+]
 
 # the markup we're going to use for [citation needed] and <ref> tags,
 # pre-marked as safe for jinja.
@@ -116,6 +138,7 @@ def citation_hunt(lang_code):
     else:
         cat = CATEGORY_ALL
 
+    iwd_cat_id, iwd_cat_title = random.choice(IWD_SUGGESTED_CATEGORIES)
     if id is not None:
         sinfo = select_snippet_by_id(lang_code, id)
         if sinfo is None:
@@ -141,7 +164,8 @@ def citation_hunt(lang_code):
             ref_html = SUPERSCRIPT_MARKUP,
             config = cfg,
             lang_dir = lang_dir,
-            category_filter_autofocus = autofocus)
+            category_filter_autofocus = autofocus,
+            iwd_cat_id = iwd_cat_id, iwd_cat_title = iwd_cat_title)
 
     id = select_random_id(lang_code, cat)
     return flask.redirect(

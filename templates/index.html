@@ -43,6 +43,9 @@
     <link href="https://fonts.googleapis.com/css?family=Fondamento" rel="stylesheet" type="text/css">
     <a target="_blank" id="github-link" href="https://github.com/eggpi/citationhunt">{{ config.strings.github_link_title }}</a>
     <link rel="prefetch" href="{{ config.lang_code }}?id={{ next_snippet_id }}&cat={{ current_category.id }}">
+    {% if config.lang_code == 'en' %}
+    <p class="bottom-message">It's <a href="https://en.wikipedia.org/wiki/International_Women's_Day">International Women's Day</a>! Help out on articles about <a href="{{ config.lang_code }}?cat={{ iwd_cat_id }}">{{ iwd_cat_title }}</a>!
+    {% endif %}
     <div id="lang-links">
       {% for lang_code, lang_config in config.lang_code_to_config.items() | sort %}
         <a href="{{ lang_code }}"{% if config.lang_code == lang_code %} class="current-lang" {% endif %}>{{ lang_config.lang_name }}</a>
